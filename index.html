@@ -1,0 +1,167 @@
+<html>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+    <style>
+      
+
+ .pure-form {
+  border-radius: 5px;
+  background-color: #f2f2f2;
+  padding: 20px;
+}
+table, th, tr {
+  border:1px solid black;
+}
+ 
+</style>
+    <body>
+        <form onsubmit="formSubmit(event)" class="pure-form" >
+    <fieldset>
+    <legend>INVENTORY MANAGEMENT</legend>
+        <label>Item Name</label>
+    </br>
+        <input type="text" placeholder="Item Name" name="name" id="nameIdd" required/>
+    </br>
+        <label>Description</label>
+    </br>
+        <input type="text" placeholder="Description" name="description" id="descriptionIdd" required/>
+    </br>
+        <label>Price</label>
+    </br>
+        <input type="tel" placeholder="Price" name="price" id="priceIdd" required/>
+    </br>
+       <label>Quantity</label>
+    </br>
+        <input type="number" placeholder="Quantity" name="quantity" id="quantityIdd" required/>
+    </br>
+     <button>Add Item</button>
+    </fieldset> 
+        </form>
+        <table style="width:50%">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                </tr>
+            </thead>
+        </table>
+        <ul id="listofitems"></ul>
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+    <script>
+        
+        async function formSubmit(event){
+            event.preventDefault();
+            const name=event.target.name.value;
+            const description=event.target.description.value;
+            const price=event.target.price.value;
+            const quantity=event.target.quantity.value;
+            const obj={
+                name,
+                description,
+                price,
+                quantity
+
+            }
+            document.forms[0].reset(); 
+            
+            axios.post("http://localhost:4100/user/add-item",obj)
+            .then((response)=>{
+                console.log(response)
+               
+                showUserOnScreen(response.data.itemDetails)
+                // location.reload()
+               
+               })
+            .catch((err)=>{
+                console.log(err)
+            })
+        }
+            window.addEventListener("DOMContentLoaded",()=>{
+                const data=axios.get("http://localhost:4100/user/get-item")
+                .then((response)=>{
+                    // let amount=0
+                    for(var i=0;i<response.data.allItems.length;i++){
+                        console.log('89', response.data.allItems[i].quantity)
+                        // amount+=response.data.allExpenses[i].amount;
+                       showUserOnScreen(response.data.allItems[i])
+                       }
+                   
+                    // displayTotalExpense(amount)
+            })
+                .catch((error)=>{
+                    console.log(error)
+                })
+            })
+            async function deleteItem(id){
+            await axios.delete(`http://localhost:4100/user/delete-item/${id}`)
+        }
+
+        function showUserOnScreen(obj){
+            const parentElem=document.getElementById('listofitems');
+            const childElem=document.createElement('li')
+            childElem.textContent=obj.id + '->'+ obj.name+' - '+obj.description+' - '+obj.price+' - '+obj.quantity;
+             
+            const deleteButton=document.createElement('input')
+            deleteButton.type="button"
+            deleteButton.value="Delete Expense"
+
+
+            deleteButton.onclick=()=>{
+                deleteItem(obj.id)
+                parentElem.removeChild(childElem)
+            }
+            
+            const buy1Button=document.createElement('input')
+            buy1Button.type="button"
+            buy1Button.value="buy1"
+            buy1Button.onclick=()=>{
+                parentElem.removeChild(childElem)
+                const completedListElem = document.getElementById('listofitems');
+                const completedItemElem = document.createElement('li');
+                completedItemElem.textContent = obj.id+' - '+obj.name + ' - ' + obj.description+ ' - ' + obj.price+ ' - ' + `${obj.quantity-1}`;
+                completedListElem.appendChild(completedItemElem);
+              
+             }
+             const buy2Button=document.createElement('input')
+             buy2Button.type="button"
+             buy2Button.value="buy2"
+             buy2Button.onclick=()=>{
+                parentElem.removeChild(childElem)
+                const completedListElem = document.getElementById('listofitems');
+                const completedItemElem = document.createElement('li');
+                completedItemElem.textContent = obj.id+' - '+obj.name + ' - ' + obj.description+ ' - ' + obj.price+ ' - ' + `${obj.quantity-2}`;
+                completedListElem.appendChild(completedItemElem);
+             }
+             const buy3Button=document.createElement('input')
+             buy3Button.type="button"
+             buy3Button.value="buy3"
+             buy3Button.onclick=()=>{
+                parentElem.removeChild(childElem)
+                const completedListElem = document.getElementById('listofitems');
+                const completedItemElem = document.createElement('li');
+                completedItemElem.textContent = obj.id+' - '+obj.name + ' - ' + obj.description+ ' - ' + obj.price+ ' - ' + `${obj.quantity-3}`;
+                completedListElem.appendChild(completedItemElem);
+             }
+             
+            childElem.appendChild(deleteButton)
+            childElem.appendChild(buy1Button)
+            childElem.appendChild(buy2Button)
+            childElem.appendChild(buy3Button)
+            parentElem.appendChild(childElem)
+            }
+
+             function reduction(obj){
+                const completedListElem = document.getElementById('listofitems');
+                const completedItemElem = document.createElement('li');
+                completedItemElem.textContent = obj.id+' - '+obj.name + ' - ' + obj.description+ ' - ' + obj.price+ ' - ' + `${obj.quantity-1}`;
+                completedListElem.appendChild(completedItemElem);
+            }
+           
+        </script>
+    </body>
+</html>
+           
+        
+  
